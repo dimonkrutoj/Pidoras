@@ -2,91 +2,150 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Серьезный вопрос</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Опрос</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            overflow: hidden; /* Чтобы не было прокрутки, когда кнопка убегает */
+            background-color: #1a1a1a;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .card {
+            text-align: center;
+            padding: 20px;
+            z-index: 1;
         }
 
         h1 {
-            margin-bottom: 50px;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
         }
 
-        .buttons {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            height: 100px;
+        .btn-container {
             display: flex;
-            justify-content: space-around;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
         }
 
         button {
-            padding: 15px 30px;
-            font-size: 18px;
-            cursor: pointer;
+            padding: 15px 35px;
+            font-size: 1.2rem;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
             transition: transform 0.1s;
         }
 
         #yesBtn {
-            background-color: #4CAF50;
+            background-color: #4cd137;
             color: white;
+            box-shadow: 0 4px 15px rgba(76, 209, 55, 0.4);
         }
 
         #noBtn {
-            background-color: #f44336;
+            background-color: #e84118;
             color: white;
-            position: absolute;
+            position: absolute; /* Важно для свободного перемещения */
+            z-index: 100;
+        }
+
+        /* Красивое кастомное окно вместо alert */
+        #customAlert {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #customAlert.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        #customAlert h2 {
+            font-size: 3rem;
+            color: #fbc531;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .reload-btn {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Ты пидорас?</h1>
+    <div class="card" id="mainCard">
+        <h1>Ты пидорас?</h1>
+        <div class="btn-container">
+            <button id="yesBtn">Да</button>
+            <button id="noBtn">Нет</button>
+        </div>
+    </div>
 
-    <div class="buttons">
-        <button id="yesBtn" onclick="sayYes()">Да</button>
-        <button id="noBtn">Нет</button>
+    <div id="customAlert">
+        <h2>Ну я так и знал! 😂</h2>
+        <button class="reload-btn" onclick="location.reload()">Пройти еще раз</button>
     </div>
 
     <script>
         const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const alertBox = document.getElementById('customAlert');
 
-        // Функция перемещения кнопки
-        function moveButton() {
-            // Вычисляем случайные координаты с учетом размеров экрана
-            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-            
-            noBtn.style.left = x + 'px';
-            noBtn.style.top = y + 'px';
+        // Логика убегания кнопки
+        function moveButton(e) {
+            // Предотвращаем стандартное поведение (скролл, зум)
+            if (e.type === 'touchstart') e.preventDefault();
+
+            const padding = 50;
+            // Генерируем координаты так, чтобы кнопка не выходила за края экрана
+            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - padding) + padding/2;
+            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - padding) + padding/2;
+
+            noBtn.style.left = `${x}px`;
+            noBtn.style.top = `${y}px`;
             noBtn.style.position = 'fixed';
         }
 
-        // Обработка наведения мыши (для ПК)
+        // Слушаем и наведение (ПК), и касание (Телефон)
         noBtn.addEventListener('mouseover', moveButton);
+        noBtn.addEventListener('touchstart', moveButton);
 
-        // Обработка касания (для телефонов)
-        noBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault(); // Предотвращаем стандартное нажатие
-            moveButton();
+        // Клик на "Да"
+        yesBtn.addEventListener('click', () => {
+            alertBox.classList.add('show');
         });
-
-        function sayYes() {
-            alert('Ну я так и знал');
-        }
     </script>
 </body>
 </html>
-
